@@ -1,0 +1,9 @@
+[rocky]
+serverA ansible_host=192.168.56.10
+
+[ubuntu]
+serverB ansible_host=192.168.56.20
+
+[linux:children]
+rocky
+ubuntu 

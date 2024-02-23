@@ -1,0 +1,38 @@
+---
+- hosts: rocky
+  user: sysadmin
+  become: true
+  vars_files:
+  - ./vars/variables.yml
+
+  tasks:
+
+  - name: Install apache
+    ansible.builtin.yum:
+      name: httpd
+      state: present
+
+  - name: Enable apache
+    ansible.builtin.service:
+      name: httpd
+      state: started
+      enabled: true
+
+  - name: Enable firewall ports
+    ansible.posix.firewalld:
+      service: "{{ item }}"
+      permanent: true
+      state: enabled
+      immediate: true
+    loop:
+      - http
+      - https
+
+  - name: Install custom index.html w/template
+    ansible.builtin.template:
+      src: ./templates/index.j2
+      dest: /var/www/html/index.html
+      mode: '0444'
+      owner: apache
+      group: apache
+

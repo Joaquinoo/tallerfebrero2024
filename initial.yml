@@ -1,0 +1,36 @@
+---
+- hosts: linux
+  user: sysadmin
+  become: true
+  vars:
+    ansible_host_key_checking: false
+
+  tasks:
+  
+  - name: Copiar clave publica a los nodos
+    ansible.posix.authorized_key:
+      user: sysadmin
+      state: present
+      key: "{{ lookup('file', '/home/sysadmin/.ssh/id_rsa.pub') }}"
+
+  - name: Deshabilitar login de root por ssh
+    ansible.builtin.lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^PermitRootLogin'
+      line: "PermitRootLogin no"
+    notify: Reiniciar servicio SSH
+
+  - name: Deshabilitar login con password
+    ansible.builtin.lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^PasswordAuthentication'
+      line: "PasswordAuthentication no" 
+    notify: Reiniciar servicio SSH
+
+  handlers:
+  
+  - name: Reiniciar servicio SSH
+    ansible.builtin.systemd:
+      name: sshd
+      state: restarted 
+           

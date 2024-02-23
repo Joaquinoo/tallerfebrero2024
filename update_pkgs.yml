@@ -1,0 +1,26 @@
+---
+- hosts: linux
+  user: sysadmin
+  become: true
+  
+  tasks:
+
+  - name: Update Rocky Server
+    ansible.builtin.yum:
+      name: "*"
+      state: latest
+    when: ansible_os_family == "RedHat"
+    notify: Reboot Server
+
+  - name: Update Ubuntu Server
+    ansible.builtin.apt:
+      name: "*"
+      state: latest
+      update_cache: yes
+    when: ansible_os_family == "Debian"
+    notify: Reboot Server
+
+  handlers:
+
+  - name: Reboot Server
+    ansible.builtin.reboot:  
