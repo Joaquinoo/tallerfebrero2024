@@ -1,6 +1,6 @@
 ---
 - hosts: linux
-  user: sysadmin
+  user: ansible
   become: true
   vars:
     ansible_host_key_checking: false
@@ -9,9 +9,9 @@
   
   - name: Copiar clave publica a los nodos
     ansible.posix.authorized_key:
-      user: sysadmin
+      user: ansible
       state: present
-      key: "{{ lookup('file', '/home/sysadmin/.ssh/id_rsa.pub') }}"
+      key: "{{ lookup('file', '/home/ansible/.ssh/id_rsa.pub') }}"
 
   - name: Deshabilitar login de root por ssh
     ansible.builtin.lineinfile:
