@@ -1,0 +1,66 @@
+---
+- hosts: ubuntu
+  user: ansible
+  become: true
+  vars:
+    tomcat_url: https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.99/bin/apache-tomcat-8.5.99.tar.gz
+
+  tasks:
+
+  - name: Install OpenJDK
+    ansible.builtin.apt:
+      name: "openjdk-11-jre-headless"
+      state: present
+
+  - name: Create Tomcat group
+    ansible.builtin.group:
+      name: tomcat
+      state: present
+
+  - name: Create Tomcat user
+    ansible.builtin.user:
+      name: tomcat
+      group: tomcat
+      state: present
+
+  - name: Create Tomcat directory
+    ansible.builtin.file:
+      path: /opt/tomcat
+      state: directory
+      mode: '0755'
+      owner: tomcat
+      group: tomcat
+      
+  - name: Download Tomcat
+    ansible.builtin.unarchive:
+      src: "{{ tomcat_url }}"
+      dest: /opt/tomcat/
+      remote_src: true
+
+  - name: Move the files to /opt/tomcat
+    ansible.builtin.command: mv /apache-tomcat-8.5.99/* /opt/tomcat/.
+    args:
+      removes: /apache-tomcat-8.5.99
+      creates: /opt/tomcat/*
+
+  - name: Copy sample.war
+    ansible.builtin.copy:
+      src: /files/sample.war
+      dest: /opt/tomcat/webapps/sample.war
+      mode: '0755'
+
+  - name: Copy tomcat.service
+    ansible.builtin.copy:
+      src: /files/tomcat.service
+      dest: /etc/systemd/system/tomcat.service
+      mode: '0755'
+
+  - name: Reload systemd
+    ansible.builtin.systemd:
+      daemon-reload: yes
+
+  - name: Enable the tomcat service and start
+    ansible.builtin.systemd:
+      name: tomcat
+      enabled: yes
+      state: started
