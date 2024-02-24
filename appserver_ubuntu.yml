@@ -38,20 +38,20 @@
       remote_src: true
 
   - name: Move the files to /opt/tomcat
-    ansible.builtin.command: mv /apache-tomcat-8.5.99/* /opt/tomcat/.
+    ansible.builtin.command: mv /opt/tomcat/apache-tomcat-8.5.99/* /opt/tomcat/.
     args:
-      removes: /apache-tomcat-8.5.99
+      removes: /opt/tomcat/apache-tomcat-8.5.99
       creates: /opt/tomcat/*
 
   - name: Copy sample.war
     ansible.builtin.copy:
-      src: /files/sample.war
+      src: ./files/sample.war
       dest: /opt/tomcat/webapps/sample.war
       mode: '0755'
 
   - name: Copy tomcat.service
     ansible.builtin.copy:
-      src: /files/tomcat.service
+      src: ./files/tomcat.service
       dest: /etc/systemd/system/tomcat.service
       mode: '0755'
 
