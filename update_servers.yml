@@ -1,6 +1,6 @@
 ---
 - hosts: linux
-  user: sysadmin
+  user: ansible
   become: true
   
   tasks:
