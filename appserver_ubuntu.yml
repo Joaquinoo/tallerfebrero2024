@@ -14,6 +14,26 @@
       name: "openjdk-8-jre"
       state: present
 
+
+  - name: Install UFW
+    ansible.builtin.apt:
+      name: "ufw"
+      state: present
+
+  - name: Allow all access to port 22
+    community.general.ufw:
+      rule: allow
+      port: '22'
+
+  - name: Allow all access to app on port 8080
+    community.general.ufw:
+      rule: allow
+      port: '8080'
+
+  - name: Enable UFW 
+    community.general.ufw:
+      state: enabled
+
   - name: Create Tomcat group
     ansible.builtin.group:
       name: tomcat
@@ -62,7 +82,6 @@
       group: "tomcat"
       mode: '0755'
       
-
   - name: Copy tomcat.service
     ansible.builtin.copy:
       src: ./files/tomcat.service
