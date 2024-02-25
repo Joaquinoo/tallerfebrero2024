@@ -11,7 +11,7 @@
 
   - name: Install OpenJDK
     ansible.builtin.apt:
-      name: "openjdk-11-jre-headless"
+      name: "openjdk-8-jre"
       state: present
 
   - name: Create Tomcat group
