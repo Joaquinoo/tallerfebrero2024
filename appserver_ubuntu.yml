@@ -3,7 +3,9 @@
   user: ansible
   become: true
   vars:
-    tomcat_url: https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.99/bin/apache-tomcat-8.5.99.tar.gz
+    tomcat_url: "https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.99/bin/apache-tomcat-8.5.99.tar.gz"
+    tomcat_version: "apache-tomcat-8.5.99"
+    tomcat_dir: "/opt/tomcat"
 
   tasks:
 
@@ -25,7 +27,7 @@
 
   - name: Create Tomcat directory
     ansible.builtin.file:
-      path: /opt/tomcat
+      path: "{{ tomcat_dir }}"
       state: directory
       mode: '0755'
       owner: tomcat
@@ -34,19 +36,28 @@
   - name: Download Tomcat
     ansible.builtin.unarchive:
       src: "{{ tomcat_url }}"
-      dest: /opt/tomcat/
+      dest: "{{ tomcat_dir }}"
       remote_src: true
 
-  - name: Move the files to /opt/tomcat
-    ansible.builtin.command: mv /opt/tomcat/apache-tomcat-8.5.99/* /opt/tomcat/.
-    args:
-      removes: /opt/tomcat/apache-tomcat-8.5.99
-      creates: /opt/tomcat/*
+  - name: Copy downloaded Tomcat to {{ tomcat_dir }}
+    ansible.builtin.copy:
+      remote_src: true
+      src: "{{ tomcat_dir }}/{{ tomcat_version }}/"
+      dest: "{{ tomcat_dir }}/"
+      owner: tomcat
+      group: tomcat
+      directory_mode: '0755'
+      mode: '0755'
+
+  - name: Clean Tomcat download
+    ansible.builtin.file:
+      path: "{{ tomcat_dir }}/{{ tomcat_version }}"
+      state: absent
 
   - name: Copy sample.war
     ansible.builtin.copy:
-      src: ./files/sample.war
-      dest: /opt/tomcat/webapps/sample.war
+      src: "./files/sample.war"
+      dest: "{{ tomcat_dir }}/webapps/sample.war"
       mode: '0755'
 
   - name: Copy tomcat.service
