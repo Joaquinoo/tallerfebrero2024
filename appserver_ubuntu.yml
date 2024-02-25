@@ -44,8 +44,8 @@
       remote_src: true
       src: "{{ tomcat_dir }}/{{ tomcat_version }}/"
       dest: "{{ tomcat_dir }}/"
-      owner: tomcat
-      group: tomcat
+      owner: "tomcat"
+      group: "tomcat"
       directory_mode: '0755'
       mode: '0755'
 
@@ -58,7 +58,10 @@
     ansible.builtin.copy:
       src: "./files/sample.war"
       dest: "{{ tomcat_dir }}/webapps/sample.war"
+      owner: "tomcat"
+      group: "tomcat"
       mode: '0755'
+      
 
   - name: Copy tomcat.service
     ansible.builtin.copy:
