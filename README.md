@@ -6,23 +6,6 @@ playbooks creados y la manera de utilizarlos.
 
 
 ## Playbooks:
-- initial.yml:
-  - Este playbook se encarga de copiar la clave SSH publica del usuario 
-    "ansible" a los distintos servidores Linux creados para el
-    obligatorio (serverA y serverB) independientemente de su
-    distribución.
-    Para hacer esto, utiliza el modulo "ansible.posix.authorized_key".
-    Tambien se encarga de deshabilitar el login de root por SSH seteando
-    "PermitRootLogin" a "no" y deshabilita el login con password
-    seteando "PasswordAuthentication" a "no" utilizando el modulo 
-    "ansible.posix.authorized_key".
-    Por ultimo, se encarga de reiniciar el servicio SSH utilizando
-    "ansible.builtin.systemd" para que los cambios realizados sean
-    tomados.
-  - El uso de este playbook es indispensable para luego poder ejecutar
-    tareas con Ansible en los servidores mencionados y no necesitar
-    escribir la contraseña del usuario cada vez ya que no sera
-    requesteada.
 
 - update_servers.yml:
   - Este playbook se encarga de actualizar los servidores Linux que
