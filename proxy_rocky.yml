@@ -1,9 +1,7 @@
 ---
 - hosts: rocky
-  user: sysadmin
+  user: ansible
   become: true
-  vars_files:
-  - ./vars/variables.yml
 
   tasks:
 
@@ -20,19 +18,22 @@
 
   - name: Enable firewall ports
     ansible.posix.firewalld:
-      service: "{{ item }}"
+      port: "{{ item }}"
       permanent: true
       state: enabled
       immediate: true
     loop:
-      - http
-      - https
+      - "80/tcp"
+      - "443/tcp"
+      - "8080/tcp"
 
-  - name: Install custom index.html w/template
-    ansible.builtin.template:
-      src: ./templates/index.j2
-      dest: /var/www/html/index.html
-      mode: '0444'
-      owner: apache
-      group: apache
+  - name: Copy proxy conf
+    ansible.builtin.copy:
+      src: "./files/sample-app.conf"
+      dest: "/etc/httpd/conf.d"
+      mode: "0744"
 
+  - name: Restart apache service
+    ansible.builtin.systemd:
+      name: httpd.service
+      state: reloaded
