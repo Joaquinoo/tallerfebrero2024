@@ -9,7 +9,8 @@
   
   - name: Create ansible group                                            
     ansible.builtin.group:                                                
-      name: ansible                                                                                                             
+      name: ansible
+      password: "D634FB2983F4552CEAA809147F2380645A23403287C9F4356FC8FB9E192DCEA5BB906880FA7223385B910D658FEC14ED0342B735A6C4B738A9E750E4C2F4F121"                                                                                                             
       state: present 
 
   - name: Create ansible user                                             
