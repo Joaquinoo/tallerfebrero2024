@@ -1,70 +1,84 @@
-# Funcionamiento Playbooks - Taller de servidores Linux - Febrero 2024.
+# README - Taller de servidores Linux - Febrero 2024.
 
 ## Descripción:
 
-- La finalidad de este documento es explicar el funcionamiento de los playbooks creados y la manera de utilizarlos.
+Abordaremos cómo configurar el entorno inicial para la ejecución de los playbooks, además de explicar el funcionamiento y la estructura general del proyecto.
 
-## Prerequisitos:
+## Prerrequisitos:
+Lo único necesario además de ansible instalado en el equipo bastión, es ejecutar el script "setup.sh" y seguir los prompts:
+```
+./setup.sh
+```
+Este script crea el public-private keypair, copia la clave pública a los servidores y al usuario definidos en los inputs que se solicitan, ejecuta ```initial.yml``` para realizar la configuración inicial en los servidores e instala los requisitos definidos en ```requirements.yml```.
 
-- Ansible debe estar instalado en el nodo de control, que será el host donde se correra Ansible.
-- Para instalar Ansible, el nodo de control debe contar con Python 2 (version 2.7) o Python 3 (versiones 3.5 y mas nuevas).
-- Para poder ejecutar los playbooks los playbooks será necesario tener instalados las collections community.general y ansible.posix. Para instalarlas, utiliza el siguiente comando: 
-    - ansible-galaxy install -r requirements.yml
+## Estructura fundamental del repo:
+### ```/```
+- ```main_playbook.yml```
+    - Contiene la llamada a todos los playbooks en orden.
+    - Si se desea tener mayor control sobre la ejecución de las tareas, es posible ejecutar manualmente los playbooks contenidos en ```playbooks/```.
 
-## Playbooks:
+- ```requirements.yml```
+    - Contiene todas las colecciones necesarias para el uso de los playbooks.
 
-- update_servers.yml:
+- ```setup.sh```
+    - Script inicial que facilita la configuración inicial del entorno Ansible.
+### ```playbooks/```
+- ```playbooks/update_servers.yml```
+    - Este playbook se encarga de actualizar los servidores Linux que fueron creados para el proyecto (Rocky como Proxy y Ubuntu como Web Server).
+    - El uso de este playbook es indispensable si es que necesitamos mantener nuestros servidores al día en cuanto a actualizaciones generales.
 
-    - Este playbook se encarga de actualizar los servidores Linux que fueron creados para el obligatorio (serverA y serverB) independientemente de su distribución. Para lograr esto, utilizamos los modulos "ansible. builtin.apt" y "ansible.builtin.yum" de Ansible que vienen incluidos con ansible-core. Una vez las tareas de update son completadas, el playbook se encarga de reiniciar los servidores utilizando "ansible.builtin.systemd".
-    - El uso de este playbook es indispensable ya que necesitaremos tener los servidores actualizados para poder continuar.
+- ```playbooks/appserver_ubuntu.yml```
 
-- appserver_ubuntu.yml:
-
-    - Este playbook se encarga de varias tareas en serverB (Ubuntu) con la finalidad de crear una aplicacion web. Dentro de estas tareas se encuentran: 
-       - Instalar OpenJDK 8 
-       - Instalar UFW para poder controlar el firewall, 
-       - Descargar e instalar Tomcat 
-       - Configurar el firewall para permitir trafico en los puertos 22 y 8080 
-       - Copia el archivo sample.war del bastion al destino.
-
-       1) Se encarga de instalar OpenJDK 8, lo cual es necesario para nuestra aplicacion web utilizando "ansible.builtin.apt".
-       2) Usando el mismo modulo instala UFW.
-       3) Utilizando el modulo "community.general.ufw" configura el firewall para permitir trafico en los puertos 22, 8080 y habilitamos el firewall.
-       4) Crea el grupo "tomcat" utilizando "ansible.builtin.group"
-       5) Crea el user "tomcat" utilizando "ansible.builtin.user".
-       6) Utilizando "ansible.builtin.group" crea el directorio "tomcat", el cual esta definido en la variable "tomcat_dir".
-       7) Descarga tomcat usando "ansible.builtin.unarchive". El repositorio elegido para la descarga esta definido en la variable "tomcat_url".  
-       8) Copia el tomcat del directorio en el que fue descargado al directorio definido en tomcat_dir usando "ansible.builtin.copy". Tambien setea el owner y el group del directorio a "tomcat", y setea los permisos del directorio y archivos a 0755.
-       9) Borra el directorio de descarga que fue creado en el punto 7) utilizando "ansible.builtin.file".
-       10) Usando "ansible.builtin.copy" copia el archivo "sample.war" del directorio "./files/" al directorio destino, que en este caso es "/opt/tomcat/webapps/". A parte de esto, tambien setea el owner y grupo del directorio a "tomcat", y setea permisos a 0755.
-       11) Utilizando el mismo modulo, copia el archivo de servicio de Tomcat del directorio "./files/tomcat.service" al destino "/etc/systemd/system/tomcat.service" y setea permisos a 0755.
-       12) Realiza un "reload" de systemd utilizando el modulo "ansible.builtin.systemd".
-       13) Por ultimo, habilita el servicio tomcat y lo inicia utilizando "ansible.builtin.systemd".
+    - Este playbook se encarga de varias tareas en el Web Server (Ubuntu) con la finalidad de hostear una aplicación web de prueba. Dentro de estas tareas se encuentran: 
+       - Instalación de ```OpenJDK 8```.
+       - Instalación de ```ufw``` para poder controlar el firewall.
+       - Descarga, instalación y configuración de ```Tomcat 8.5``` como servicio.
+       - Configuración de firewall para ```permitir``` tráfico entrante proveniente del bastión en el ```puerto 22```.
+       - Configuración de firewall para ```permitir``` tráfico entrante proveniente del proxy en el ```puerto 8080```.
+       - Copiado del archivo ```sample.war``` (aplicación de prueba) hacia el servidor de destino.
      
-- proxy_rocky.yml (WIP):
+- ```playbooks/proxy_rocky.yml```
 
-    - Este playbook se encarga de varias tareas en serverA (Rocky) con la finalidad de configurar un proxy reverso. 
-       1) Instala xxx utilizando el modulo "ansible.builtin.yum".
-       2) Habilita el servicio xxx utilizando el modulo "ansible.builtin.service".
-       3) Habilita el trafico en los puertos 80, 443 y 8080. Lo setea como permanente y lo habilita de manera inmediata.
-       4) Copia el archivo de configuracion del proxy (sample-app.conf) del directorio ./files/ al directorio /etc/httpd/, lo renombra como "conf.d" y le setea permisos 0755.
-       5) Por ultimo reinicia el servicio httpd.service utilizando el modulo "ansible.builtin.systemd".
+    - Este playbook se encarga de realizar las tareas necesarias para que el Proxy Reverso (Rocky) sea configurado de manera exitosa. Dentro de estas tareas se encuentran:
+      - Instalación y configuración de ```apache httpd```.
+      - Configuración de firewall para ```permitir``` todo el tráfico entrante en los puertos TCP: ```80, 8080 y 443```
+      - Configuración de ```SELinux``` para permitir que apache actúe como relay y para que pueda conectarse a la red.
+      - Copiado del archivo ```sample-app.conf``` (config file del proxy reverso).
+- ```playbooks/initial.yml```
+    - Contiene la configuración inicial de los servidores remotos, así como del servicio SSH.
 
-       
+### ```files/```
+
+- ```files/sample_app.conf```
+    - Contiene toda la configuración del proxy reverso.
+    - Importante editarlo en caso de que las IPs de los servidores cambien.
+- ```files/tomcat.service```
+    - Contiene la configuración del servicio de Tomcat 8.5.
+    - Es buena idea revisar su contenido para verificar que se adapta a nuestras necesidades.
+- ```files/sample.war```
+    - Aplicación de prueba.
+### ```inventories/```
+- ```inventories/hosts```
+    - Contiene los hosts sobre los que deseamos correr los playbooks.
+
+
 ## Uso:
 
-- Los playbooks mencionados en este documento son ejecutados con el siguiente comando:
-    - "ansible-playbook -i inventories/hosts [playbook_name]"
-    - Recuerda reemplazar [playbook_name] por el nombre del playbook que deseas ejecutar.
-- Los playbooks estan diseñados para utilizar los host que estan definidos dentro del archivo "hosts.yml" que se encuentra en el directorio "/inventories/". 
-    - En caso de necesitar cambiar los hosts, o agregar adicionales, es posible editar dicho archivo y agregarlos. 
-- Nota adicionales:
-    - Para checkear sintaxis de un playbook se puede agregar la opcion "--syntax-check" al comando de ejecucion.
+Una vez comprendida la estructura fundamental del repo, es posible ejecutar el playbook inicial.
+
+En la raíz del repo:
+```
+ansible-playbook -i inventories/hosts main_playbook.yml
+```
+### Nota adicionales:
+    - Para chequear sintaxis de un playbook se puede agregar la opcion "--syntax-check" al comando de ejecución.
     - Para hacer un "dry run" del playbook se puede usar la opcion "--check".
     - Es posible agregar hosts, quitarlos o modificar los utilizados actualmente. Para esto sera necesario modificar el archivo "hosts" y/o los playbooks.
-    - En caso de que el playbook utilize variables, estas estaran definidas al comienzo del archivo del playbook. En caso de ser necesario, las variables pueden ser editadas a gusto.
+    - En caso de que el playbook utilice variables, estas estaran definidas al comienzo del archivo del playbook. En caso de ser necesario, las variables pueden ser editadas a gusto.
     - Al haber utilizado "become: true", en caso de que el usuario tenga permisos de sudo CON contraseña, se debera utilizar la opcion "--ask-become-pass" en el comando a la hora de ejecutar el playbook. De lo contrario, en caso de que el usuario tenga permisos de sudo SIN contraseña, el comando no requerira esta opcion.   
 
 ## Créditos
 
-Joaquin Laguzzi & Emilio Pastro.
+Hecho con 💞 por:
+- Joaquin Laguzzi
+- Emilio Pastro.
