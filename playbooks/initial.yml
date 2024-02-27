@@ -86,7 +86,7 @@
       line: "#PasswordAuthentication yes"
       backrefs: yes
     when:
-      - config_file.stat.exists
+      - config_file.stat.exists == True
       - ansible_os_family == "Debian"
     notify: Restart SSH Service
 
