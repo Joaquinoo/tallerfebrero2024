@@ -23,5 +23,5 @@ echo -e "**Instalando colecciones necesarias**"
 ansible-galaxy install -r requirements.yml
 
 echo -e "---------------------------------------------------------------------------------------"
-echo -e "**Ejecutando initial.yml para configuración inicial de los servidores remotos**"
-ansible-playbook -i inventories/hosts playbooks/initial.yml
+echo -e "**Ejecutando initial.yml como sysadmin para configuración inicial de los servidores remotos**"
+ansible-playbook -i inventories/hosts playbooks/initial.yml --ask-become-pass
