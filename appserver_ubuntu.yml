@@ -6,6 +6,8 @@
     tomcat_url: "https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.99/bin/apache-tomcat-8.5.99.tar.gz"
     tomcat_version: "apache-tomcat-8.5.99"
     tomcat_dir: "/opt/tomcat"
+    proxy_server: "192.168.56.10"
+    bastion: "192.168.56.30"
 
   tasks:
 
@@ -14,20 +16,21 @@
       name: "openjdk-8-jre"
       state: present
 
-
   - name: Install UFW
     ansible.builtin.apt:
       name: "ufw"
       state: present
 
-  - name: Allow all access to port 22
+  - name: Allow access from bastion to app server via SSH on port 22
     community.general.ufw:
       rule: allow
+      src: "{{ bastion }}"
       port: '22'
 
-  - name: Allow all access to app on port 8080
+  - name: Allow access from proxy server to app on port 8080
     community.general.ufw:
       rule: allow
+      src: "{{ proxy_server }}"
       port: '8080'
 
   - name: Enable UFW 

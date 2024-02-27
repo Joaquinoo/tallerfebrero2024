@@ -27,12 +27,32 @@
       - "443/tcp"
       - "8080/tcp"
 
+  - name: Allow httpd scripts and modules to connect to the network using TCP
+    ansible.builtin.shell: "setsebool -P httpd_can_network_connect on"
+
+  - name: Allow httpd to act as a relay
+    ansible.builtin.shell: "setsebool -P httpd_can_network_relay on"
+
   - name: Copy proxy conf
     ansible.builtin.copy:
       src: "./files/sample-app.conf"
       dest: "/etc/httpd/conf.d"
       mode: "0744"
 
+  - name: Listen on ports 80, 8080 & 443                             
+    ansible.builtin.lineinfile:                                          
+      path: /etc/httpd/conf/httpd.conf                                         
+      regex: '^#Listen'                                         
+      line: "Listen 8080\nListen 443"
+      backrefs: yes                                         
+    
+  - name: Load Proxy Modules                             
+    ansible.builtin.lineinfile:                                          
+      path: /etc/httpd/conf/httpd.conf                                         
+      regex: '^# LoadModule'                                         
+      line: "LoadModule proxy_module modules/mod_proxy.so\nLoadModule proxy_http_module modules/mod_proxy_http.so"
+      backrefs: yes               
+                          
   - name: Restart apache service
     ansible.builtin.systemd:
       name: httpd.service
