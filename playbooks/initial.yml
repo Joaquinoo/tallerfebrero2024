@@ -1,35 +1,72 @@
 ---
 - hosts: linux
-  user: ansible
+  user: sysadmin
   become: true
   vars:
     ansible_host_key_checking: false
 
   tasks:
   
-  - name: Copiar clave publica a los nodos
+  - name: Copy public key to both servers
     ansible.posix.authorized_key:
       user: ansible
       state: present
       key: "{{ lookup('file', '/home/ansible/.ssh/id_rsa.pub') }}"
 
-  - name: Deshabilitar login de root por ssh
+  - name: Disable SSH RootLogin on RHEL servers
     ansible.builtin.lineinfile:
       path: /etc/ssh/sshd_config
       regexp: '^PermitRootLogin'
       line: "PermitRootLogin no"
-    notify: Reiniciar servicio SSH
+    notify: Restart SSH Service
+    when: ansible_os_family == "RedHat"
 
-  - name: Deshabilitar login con password
+  - name: Disable SSH Password Authentication on RHEL servers
     ansible.builtin.lineinfile:
       path: /etc/ssh/sshd_config
       regexp: '^PasswordAuthentication'
       line: "PasswordAuthentication no" 
-    notify: Reiniciar servicio SSH
+    notify: Restart SSH Service
+    when: ansible_os_family == "RedHat"
+
+  - name: Disable SSH RootLogin on Debian servers
+    ansible.builtin.lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^#PermitRootLogin'
+      line: "PermitRootLogin no"
+      backrefs: yes
+    notify: Restart SSH Service
+    when: ansible_os_family == "Debian"
+
+  - name: Disable SSH Password Authentication on Debian servers (default config file)
+    ansible.builtin.lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^#PasswordAuthentication'
+      line: "PasswordAuthentication no"
+      backrefs: yes 
+    notify: Restart SSH Service
+    when: ansible_os_family == "Debian"
+
+  - name: Check if 50-cloud-init.conf exists on Debian
+    ansible.builtin.stat:
+      path: /etc/ssh/sshd_config.d/50-cloud-init.conf
+    register: stat_result
+    when: ansible_os_family == "Debian"
+
+  - name: Disable SSH Password Authentication on Debian servers (file under /etc/ssh/sshd_config.d/)
+    ansible.builtin.lineinfile:
+      path: /etc/ssh/sshd_config.d/50-cloud-init.conf
+      regexp: '^PasswordAuthentication'
+      line: "#PasswordAuthentication yes"
+      backrefs: yes
+    when:
+      - stat_result.stat.exists
+      - ansible_os_family == "Debian"
+    notify: Restart SSH Service
 
   handlers:
   
-  - name: Reiniciar servicio SSH
+  - name: Restart SSH Service
     ansible.builtin.systemd:
       name: sshd
       state: restarted 

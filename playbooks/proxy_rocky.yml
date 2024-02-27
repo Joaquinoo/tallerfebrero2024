@@ -36,7 +36,7 @@
 
   - name: Copy proxy conf
     ansible.builtin.copy:
-      src: "./files/sample-app.conf"
+      src: "../files/sample-app.conf"
       dest: "/etc/httpd/conf.d"
       mode: "0744"
     notify: Restart httpd service

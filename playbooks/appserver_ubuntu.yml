@@ -80,7 +80,7 @@
 
   - name: Copy sample.war
     ansible.builtin.copy:
-      src: "./files/sample.war"
+      src: "../files/sample.war"
       dest: "{{ tomcat_dir }}/webapps/sample.war"
       owner: "tomcat"
       group: "tomcat"
@@ -88,7 +88,7 @@
       
   - name: Copy tomcat.service
     ansible.builtin.copy:
-      src: ./files/tomcat.service
+      src: "../files/tomcat.service"
       dest: /etc/systemd/system/tomcat.service
       mode: '0755'
 
