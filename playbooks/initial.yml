@@ -7,11 +7,30 @@
 
   tasks:
   
-  - name: Copy public key to both servers
-    ansible.posix.authorized_key:
-      user: ansible
-      state: present
-      key: "{{ lookup('file', '/home/ansible/.ssh/id_rsa.pub') }}"
+  - name: Create ansible group                                            
+    ansible.builtin.group:                                                
+      name: ansible                                                                                                             
+      state: present 
+
+  - name: Create ansible user                                             
+    ansible.builtin.user:                                                
+      name: ansible                                                       
+      group: ansible                                                      
+      state: present 
+ 
+  - name: Give ansible user SUDO privileges without password (DEBIAN)
+    ansible.builtin.lineinfile:
+      path: /etc/sudoers
+      regex: "^root"
+      insertafter: "ansible ALL=(ALL) NOPASSWD: ALL"
+    when: ansible_os_family == "Debian"
+
+  - name: Give ansible user SUDO privileges without password (DEBIAN)
+    ansible.builtin.lineinfile:
+      path: /etc/sudoers
+      regex: "^root"
+      insertafter: "ansible ALL=(ALL) NOPASSWD: ALL"
+    when: ansible_os_family == "RedHat"
 
   - name: Disable SSH RootLogin on RHEL servers
     ansible.builtin.lineinfile:
