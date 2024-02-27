@@ -66,11 +66,11 @@
     notify: Restart SSH Service
     when: ansible_os_family == "Debian"
 
-  - name: Check if 50-cloud-init.conf exists on Debian
-    ansible.builtin.stat:
-      path: /etc/ssh/sshd_config.d/50-cloud-init.conf
-    register: stat_result
-    when: ansible_os_family == "Debian"
+  #- name: Check if 50-cloud-init.conf exists on Debian
+  #  ansible.builtin.stat:
+  #    path: /etc/ssh/sshd_config.d/50-cloud-init.conf
+  #  register: stat_result
+  #  when: ansible_os_family == "Debian"
 
   - name: Disable SSH Password Authentication on Debian servers (file under /etc/ssh/sshd_config.d/)
     ansible.builtin.lineinfile:
@@ -79,7 +79,7 @@
       line: "#PasswordAuthentication yes"
       backrefs: yes
     when:
-      - stat_result.stat.exists
+    #  - stat_result.stat.exists
       - ansible_os_family == "Debian"
     notify: Restart SSH Service
 
