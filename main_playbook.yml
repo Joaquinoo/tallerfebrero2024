@@ -1,4 +1,4 @@
 ---
-- import_playbook: update_servers.yml
-- import_playbook: appserver_ubuntu.yml
-- import_playbook: proxy_rocky.yml  
+- import_playbook: ./playbooks/update_servers.yml
+- import_playbook: ./playbooks/appserver_ubuntu.yml
+- import_playbook: ./playbooks/proxy_rocky.yml  

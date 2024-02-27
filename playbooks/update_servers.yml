@@ -1,5 +1,6 @@
 ---
-- hosts: linux
+- name: Update Servers
+  hosts: linux
   user: ansible
   become: true
   

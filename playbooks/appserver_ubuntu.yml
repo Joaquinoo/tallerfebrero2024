@@ -1,5 +1,6 @@
 ---
-- hosts: ubuntu
+- name: Configure App Server
+  hosts: ubuntu
   user: ansible
   become: true
   vars:

@@ -1,5 +1,6 @@
 ---
-- hosts: rocky
+- name: Configure Proxy Server
+  hosts: rocky
   user: ansible
   become: true
 
@@ -38,6 +39,7 @@
       src: "./files/sample-app.conf"
       dest: "/etc/httpd/conf.d"
       mode: "0744"
+    notify: Restart httpd service
 
   - name: Listen on ports 80, 8080 & 443                             
     ansible.builtin.lineinfile:                                          
@@ -45,15 +47,19 @@
       regex: '^#Listen'                                         
       line: "Listen 8080\nListen 443"
       backrefs: yes                                         
-    
+    notify: Restart httpd service
+ 
   - name: Load Proxy Modules                             
     ansible.builtin.lineinfile:                                          
       path: /etc/httpd/conf/httpd.conf                                         
       regex: '^# LoadModule'                                         
       line: "LoadModule proxy_module modules/mod_proxy.so\nLoadModule proxy_http_module modules/mod_proxy_http.so"
       backrefs: yes               
-                          
-  - name: Restart apache service
+    notify: Restart httpd service
+ 
+  handlers:
+                       
+  - name: Restart httpd service
     ansible.builtin.systemd:
       name: httpd.service
       state: reloaded
