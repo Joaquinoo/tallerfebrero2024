@@ -1,4 +1,4 @@
-# README - Taller de servidores Linux - Febrero 2024.
+# README - Taller de servidores Linux 🐧
 
 ## Descripción:
 
@@ -11,7 +11,7 @@ Lo único necesario además de ansible instalado en el equipo bastión, es ejecu
 ```
 Este script crea el public-private keypair, copia la clave pública a los servidores y al usuario definidos en los inputs que se solicitan, ejecuta ```initial.yml``` para realizar la configuración inicial en los servidores e instala los requisitos definidos en ```requirements.yml```.
 
-## Estructura fundamental del repo:
+## 📄Estructura fundamental del repo:
 ### ```/```
 - ```main_playbook.yml```
     - Contiene la llamada a todos los playbooks en orden.
@@ -62,7 +62,7 @@ Este script crea el public-private keypair, copia la clave pública a los servid
     - Contiene los hosts sobre los que deseamos correr los playbooks.
 
 
-## Uso:
+## 💻Uso:
 
 Una vez comprendida la estructura fundamental del repo, es posible ejecutar el playbook inicial.
 
@@ -77,7 +77,7 @@ ansible-playbook -i inventories/hosts main_playbook.yml
     - En caso de que el playbook utilice variables, estas estaran definidas al comienzo del archivo del playbook. En caso de ser necesario, las variables pueden ser editadas a gusto.
     - Al haber utilizado "become: true", en caso de que el usuario tenga permisos de sudo CON contraseña, se debera utilizar la opcion "--ask-become-pass" en el comando a la hora de ejecutar el playbook. De lo contrario, en caso de que el usuario tenga permisos de sudo SIN contraseña, el comando no requerira esta opcion.   
 
-## Créditos
+## Créditos 
 
 Hecho con 💞 por:
 - Joaquin Laguzzi
