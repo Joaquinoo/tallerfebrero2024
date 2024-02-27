@@ -21,15 +21,15 @@
   - name: Give ansible user SUDO privileges without password (DEBIAN)
     ansible.builtin.lineinfile:
       path: /etc/sudoers
-      regex: "^root"
-      insertafter: "ansible ALL=(ALL) NOPASSWD: ALL"
+      insertafter: "^root"
+      line: "ansible ALL=(ALL) NOPASSWD: ALL"
     when: ansible_os_family == "Debian"
 
   - name: Give ansible user SUDO privileges without password (DEBIAN)
     ansible.builtin.lineinfile:
       path: /etc/sudoers
-      regex: "^root"
-      insertafter: "ansible ALL=(ALL) NOPASSWD: ALL"
+      insertafter: "^root"
+      line: "ansible ALL=(ALL) NOPASSWD: ALL"
     when: ansible_os_family == "RedHat"
 
   - name: Disable SSH RootLogin on RHEL servers
